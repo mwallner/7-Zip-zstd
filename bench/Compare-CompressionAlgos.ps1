@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param (
-  [string] $7zExecutable = '7z.exe',
+  [string] $Executable = '7z.exe',
 
   [int] $CompressionLevel = 1,
 
@@ -10,7 +10,7 @@ param (
 )
 
 function Get-SupportedCompressionAlgos {
-  $7zi = & $7zExecutable i
+  $7zi = & "$Executable" i
   $s = $false
   foreach ($l in $7zi) {
     if ($l -match "Codecs\:") {
@@ -43,9 +43,9 @@ function Test-Algo {
   $outsize = 0
   $meas = Measure-Command {
     $out = try {
-      $cmdline = "$7zExecutable a -m$CompressionLevel=$($CompressionAlgo.name) $tgtFile $CompressFolder"
+      $cmdline = @("a" , "-m$CompressionLevel=$($CompressionAlgo.name)", "$tgtFile", "$CompressFolder")
       Write-Host "-> $cmdline"
-      Invoke-Expression $cmdline
+      & "$Executable" $cmdline
       $el = $LASTEXITCODE
       if ($el -eq 0) {
         $outsize = (Get-Item $tgtFile).length / 1MB
